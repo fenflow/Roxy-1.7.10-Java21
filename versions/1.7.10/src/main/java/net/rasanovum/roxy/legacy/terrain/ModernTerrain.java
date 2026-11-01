@@ -153,6 +153,19 @@ public final class ModernTerrain implements IResourceManagerReloadListener {
         return enabled && failure == null;
     }
 
+    /** Fixed labels and counters only; status() may contain private exception text. */
+    public String supportState() {
+        return "renderer.state="
+            + (failure != null ? "failed" : !enabled ? "disabled" : runtime != null ? "running" : "waiting")
+            + "\nrenderer.capturedSections="
+            + sections
+            + "\nrenderer.pendingChunks="
+            + queue.size()
+            + "\nrenderer.modelFallbacks="
+            + LegacyModelInputs.fallbackCount()
+            + "\n";
+    }
+
     public int distance() {
         return distanceChunks;
     }
@@ -513,6 +526,7 @@ public final class ModernTerrain implements IResourceManagerReloadListener {
     }
 
     private void fail(Throwable error) {
+        net.rasanovum.roxy.legacy.loader.SupportReport.failure(error);
         failure = LoadDiagnostics.describe(error);
         LOG.error("Original Voxy renderer disabled", error);
         stop();

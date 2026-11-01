@@ -4,7 +4,12 @@ plugins {
     id("com.gtnewhorizons.gtnhconvention")
 }
 
-version = "0.4.0-gtnh-alpha"
+version = "0.4.1-gtnh-alpha"
+
+// The convention plugin otherwise captures a Git-derived version before this override.
+tasks.named<com.gtnewhorizons.retrofuturagradle.mcp.InjectTagsTask>("injectTags") {
+    tags.put("VERSION", project.version.toString())
+}
 
 val externalVoxy = providers.gradleProperty("roxyVoxyJar")
 val voxyCompileStubs = sourceSets.create("voxyCompileStubs")

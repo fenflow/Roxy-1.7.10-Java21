@@ -24,7 +24,7 @@ public final class RoxyProbeCommand extends CommandBase {
 
     @Override
     public String getCommandUsage(ICommandSender sender) {
-        return "/roxy status | on | off | hud | distance <8-128> | reload | probe";
+        return "/roxy status | report | on | off | hud | distance <8-128> | reload | probe";
     }
 
     @Override
@@ -34,6 +34,25 @@ public final class RoxyProbeCommand extends CommandBase {
 
     @Override
     public void processCommand(ICommandSender sender, String[] arguments) {
+        if (arguments.length == 1 && "report".equals(arguments[0])) {
+            try {
+                net.rasanovum.roxy.legacy.loader.SupportReport.write(
+                    Minecraft.getMinecraft().mcDataDir.toPath(),
+                    ModernTerrain.INSTANCE.isEnabled(),
+                    ModernTerrain.INSTANCE.distance());
+                sender.addChatMessage(
+                    new ChatComponentText("Support report saved: roxy/support-report.txt. Review before sharing."));
+                sender.addChatMessage(
+                    new ChatComponentText(
+                        "Attach it and reviewed logs to your Roxy issue; include GTNH version or your mod list."));
+            } catch (Exception error) {
+                sender.addChatMessage(
+                    new ChatComponentText(
+                        "Could not save support report: " + error.getClass()
+                            .getSimpleName()));
+            }
+            return;
+        }
         if (Boolean.getBoolean("roxy.rendererDiagnostics") && arguments.length == 3
             && "testview".equals(arguments[0])) {
             net.minecraft.entity.player.EntityPlayer player = Minecraft.getMinecraft().thePlayer;

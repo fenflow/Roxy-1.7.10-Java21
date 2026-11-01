@@ -23,6 +23,7 @@ public final class ModelCaptureCache<T> {
         try {
             result = capture.call();
         } catch (Exception | LinkageError error) {
+            net.rasanovum.roxy.legacy.loader.SupportReport.failure(error);
             // Do not consume VM failures, ThreadDeath or unrelated Errors.
             result = fallback.call();
             fallbacks++;

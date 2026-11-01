@@ -1,3 +1,4 @@
+> **Reporting a backport bug?** See the [bug reporting guide](versions/1.7.10/BUG_REPORTING.md). Diagnostic reports are available in 0.4.1.
 > **GTNH / 1.7.10 branch:** [Voxy engine compatibility alpha and installation instructions](versions/1.7.10/README.md).
 > Version 0.4.0 adds retained chunk capture, isolated model fallbacks, and Angelica support for shader packs exposing Voxy's native interface. The original external Voxy renderer, baker, database, and adaptive LOD hierarchy remain in use. See the linked README for tested configurations and limits. This is an alpha; the upstream documentation below describes modern NeoForge, not this GTNH build.
 

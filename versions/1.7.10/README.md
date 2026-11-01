@@ -15,7 +15,7 @@ See [validation](VALIDATION.md) for evidence and remaining coverage gaps.
 
 1. Use the **Java 17–26 edition of GTNH 2.9.0-beta-3**, running **Java 21 or newer**,
    with **Angelica 2.2.10** and the pack's LWJGL3ify installation.
-2. Remove older Roxy JARs and put `roxy-0.4.0-gtnh-alpha.jar` in `.minecraft/mods`.
+2. Remove older Roxy JARs and put `roxy-0.4.1-gtnh-alpha.jar` in `.minecraft/mods`.
 3. Obtain the original [Voxy 0.2.16-beta for Minecraft 1.21.11](https://modrinth.com/mod/voxy/version/H3w2nVdU)
    separately and put it in the same `mods` folder. Keep its original filename.
 4. Launch the game, enter a world, and explore. Voxy
@@ -24,7 +24,7 @@ See [validation](VALIDATION.md) for evidence and remaining coverage gaps.
 
 ```text
 .minecraft/mods/
-  roxy-0.4.0-gtnh-alpha.jar
+  roxy-0.4.1-gtnh-alpha.jar
   voxy-0.2.16-beta+1.21.11.jar
 ```
 
@@ -87,6 +87,7 @@ Support for one pack does not imply every pack or graphics option is compatible.
 ## Controls and storage
 
 - `/roxy on`, `/roxy off`: start or stop Voxy, including capture.
+- `/roxy report`: save a local support report for a bug report.
 - `/roxy status`: renderer state, captured sections, queued chunks, model fallbacks and distance or failure.
 - `/roxy hud`: toggle the status overlay; F3 also shows original Voxy GPU counters.
 - `/roxy distance 64`: set maximum distance, from 8 to 128 chunks.
@@ -142,6 +143,14 @@ GTNH, Angelica and the game atlas require additional memory.
 
 ## Troubleshooting
 
+See the [bug reporting guide](BUG_REPORTING.md) for attachments and a checklist.
+Run `/roxy report` after reproducing the issue, before closing the game. It saves
+`.minecraft/roxy/support-report.txt` locally and replaces the previous report.
+Nothing uploads automatically. Include your **GTNH version OR, for another
+modpack, its name/version and full mod list with versions**. Development and live
+testing target GTNH; other Minecraft 1.7.10 packs running Java 21+ may use the
+backport with its required dependencies, but are not automatically validated.
+
 `/roxy status` and `logs/fml-client-latest.log` report the real failure. A missing
 Voxy JAR is not a Java version problem. `UnsupportedClassVersionError` means the
 launcher must select Java 21+; merely installing a newer runtime is insufficient.
@@ -172,7 +181,7 @@ Use JDK 25 for Gradle with JDK 8 and 21 available as compiler toolchains:
 ```
 
 The external JAR is required to compile the bridge and run integration tests; no
-build task downloads or republishes it. Install `build/libs/roxy-0.4.0-gtnh-alpha.jar`,
+build task downloads or republishes it. Install `build/libs/roxy-0.4.1-gtnh-alpha.jar`,
 not the `-dev` or `-sources` artifacts. `verifyNoBundledVoxy` audits the artifact.
 
 Pass `-ProxyAngelicaJar=C:/path/to/angelica-2.2.10.jar` to also run the hook/stack
