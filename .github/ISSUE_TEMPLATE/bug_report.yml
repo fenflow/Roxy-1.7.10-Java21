@@ -5,8 +5,8 @@ body:
   - type: markdown
     attributes:
       value: |
-        For the Java 21+ Minecraft 1.7.10 backport. Search existing issues first.
-        Review attachments before posting and redact private information. Hardware and driver details can be read from the support report; you do not need to enter them manually.
+        For the Roxy Java 21+ Minecraft 1.7.10 backport. Search existing issues first.
+        Do not share private information.
   - type: textarea
     id: versions
     attributes:
