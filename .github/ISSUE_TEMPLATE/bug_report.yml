@@ -38,7 +38,7 @@ body:
   - type: textarea
     id: diagnostics
     attributes:
-      label: `/roxy report` file, logs and crash reports
+      label: /roxy report file, logs and crash reports
       description: "Run `/roxy report` after the problem and attach .minecraft/roxy/support-report.txt plus same-session logs/fml-client-latest.log and logs/latest.log if available. For crashes attach the matching crash-reports/*.txt (or hs_err_pid*.log for JVM crashes). Drag files here; zip large logs. If the command cannot run or files are unavailable, explain why."
     validations:
       required: true
