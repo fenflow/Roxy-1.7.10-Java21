@@ -10,8 +10,8 @@ body:
   - type: textarea
     id: versions
     attributes:
-      label: Roxy and Voxy version
-      description: Which versions of Roxy and the external Voxy JAR are you using?
+      label: Roxy and Voxy version. Java version.
+      description: Which versions of Roxy and the Voxy JAR are you using? Which Java version are you using?
     validations:
       required: true
   - type: textarea
@@ -38,10 +38,10 @@ body:
   - type: textarea
     id: diagnostics
     attributes:
-      label: /roxy report file, logs and crash reports
-      description: "Run /roxy report after the problem and attach .minecraft/roxy/support-report.txt plus same-session logs/fml-client-latest.log and logs/latest.log if available. For crashes attach the matching crash-reports/*.txt (or hs_err_pid*.log for JVM crashes). Drag files here; zip large logs. If the command cannot run or files are unavailable, explain why."
+      label: `/roxy report` file, logs and crash reports
+      description: "Run `/roxy report` after the problem and attach .minecraft/roxy/support-report.txt plus same-session logs/fml-client-latest.log and logs/latest.log if available. For crashes attach the matching crash-reports/*.txt (or hs_err_pid*.log for JVM crashes). Drag files here; zip large logs. If the command cannot run or files are unavailable, explain why."
     validations:
-      required: false
+      required: true
   - type: textarea
     id: visuals
     attributes:
