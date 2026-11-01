@@ -5,18 +5,13 @@ body:
   - type: markdown
     attributes:
       value: |
-        For the Java 21+ Minecraft 1.7.10 backport. Read the [reporting guide](https://github.com/fenflow/Roxy-1.7.10-Java21/blob/backport/1.7.10-gtnh/versions/1.7.10/BUG_REPORTING.md) and search existing issues first.
-        Review/redact attachments before posting: logs and recordings may contain private data. Do not upload credentials, whole instances or world saves.
-  - type: dropdown
-    id: category
+        For the Java 21+ Minecraft 1.7.10 backport. Search existing issues first.
+        Review attachments before posting and redact private information. Hardware and driver details can be read from the support report; you do not need to enter them manually.
+  - type: textarea
+    id: versions
     attributes:
-      label: Issue type
-      options:
-        - Visual bug
-        - Mod or shader incompatibility
-        - Crash or startup failure
-        - Performance or stuttering
-        - Other
+      label: Roxy and Voxy version
+      description: Which versions of Roxy and the external Voxy JAR are you using?
     validations:
       required: true
   - type: textarea
@@ -29,35 +24,28 @@ body:
   - type: textarea
     id: pack
     attributes:
-      label: GTNH version OR other modpack and mod list
-      description: "GTNH: exact version and added/removed/updated mods. Other packs: name/version (or custom pack) AND attach/paste the full mod list with versions."
-    validations:
-      required: true
-  - type: textarea
-    id: environment
-    attributes:
-      label: Roxy, dependencies and hardware
-      description: Include Roxy and Voxy versions, Java actually used by the launcher, OS, GPU/driver and relevant dependency versions. You may refer to an attached support report for values it contains. State singleplayer or multiplayer without sharing a server address.
+      label: GTNH version OR other modpack and mod list. Also include Java version
+      description: "GTNH: exact version and added/removed/updated mods. Other packs: name/version (or custom pack) AND attach/paste the full mod list with versions. Which Java version was used?"
     validations:
       required: true
   - type: textarea
     id: reproduce
     attributes:
-      label: Reproduction steps and frequency
+      label: Reproduction steps and frequency if applicable
       description: Numbered steps if known, frequency, and tests/workarounds already tried. If unknown or intermittent, describe what you were doing.
     validations:
-      required: true
+      required: false
   - type: textarea
     id: diagnostics
     attributes:
-      label: Support report and logs / crash reports
-      description: "Run /roxy report after the problem and attach .minecraft/roxy/support-report.txt plus same-session logs/fml-client-latest.log and logs/latest.log if available. For crashes attach the matching crash-reports/*.txt (or hs_err_pid*.log for JVM crashes). Drag files here; zip large logs. If unavailable, explain why. Review and redact first."
+      label: /roxy report file, logs and crash reports
+      description: "Run /roxy report after the problem and attach .minecraft/roxy/support-report.txt plus same-session logs/fml-client-latest.log and logs/latest.log if available. For crashes attach the matching crash-reports/*.txt (or hs_err_pid*.log for JVM crashes). Drag files here; zip large logs. If the command cannot run or files are unavailable, explain why."
     validations:
-      required: true
+      required: false
   - type: textarea
     id: visuals
     attributes:
-      label: Screenshots / video and graphics settings
+      label: Screenshots for visual bugs if applicable
       description: For visual issues attach screenshots/video, shader pack/version/preset and changed settings, resource packs and both render distances. Include on/off comparisons if feasible. Otherwise write not applicable.
     validations:
-      required: true
+      required: false
