@@ -24,6 +24,8 @@ Voxy is a Fabric exclusive LOD rendering mod. Roxy provides a translation layer 
 5.  Download [This version of voxy](https://modrinth.com/mod/voxy/version/H3w2nVdU) and place it in the mods folder
 6.  Profit
 
+If you aren't seeing any changes type `/roxy on` command in chat to turn it on.
+
 ## AI disclosure
 
 This backport was mostly written with AI. If that's not your thing, don't use it. Despite that, the mod works, and is maintained. If you find any bugs, or find that your hardware is not supported, please report a bug.
