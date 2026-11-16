@@ -8,6 +8,12 @@
 
 ### Mod was created for and tested on GTNH 2.9.0 beta 3. REQUIRES JAVA 21+.
 
+**OpenGL is required.** Select Angelica's OpenGL backend. Vulkan and other SDL-GPU
+backends cannot run Roxy/Voxy's OpenGL renderer. Since 0.4.3, Roxy disables its
+renderer on these backends and displays a message asking you to switch to OpenGL
+and restart Minecraft, instead of attempting unsupported native OpenGL calls.
+This is a crash guard, not Vulkan rendering support.
+
 To make minecraft 1.7.10 run with Java 21+ you need PrismLauncher and [lwjgl3ify](https://www.curseforge.com/minecraft/mc-mods/lwjgl3ify) mod. Use the guide in the lwjgl3ify description.
 
 Works with Angelica, and tested on latest versions of Complimentary, BSL, and photon. As long as a shaderpack has voxy support, it will work there too.

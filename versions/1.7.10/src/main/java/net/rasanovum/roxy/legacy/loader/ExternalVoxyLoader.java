@@ -90,6 +90,7 @@ public final class ExternalVoxyLoader extends URLClassLoader {
                             data = VoxyPlatformPatch.apply(data);
                             data = ModelInputPatch.apply(name, data);
                             data = ShaderLibraryPatch.apply(name, data);
+                            data = IndirectDrawPatch.apply(name, data);
                         }
                         type = defineClass(name, data, 0, data.length);
                         if (name.startsWith("me.cortex.voxy.")) externalClasses++;

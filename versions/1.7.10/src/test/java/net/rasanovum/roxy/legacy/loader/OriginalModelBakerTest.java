@@ -26,6 +26,23 @@ public class OriginalModelBakerTest {
         verifyModel(true);
     }
 
+    @Test
+    @SuppressWarnings("unchecked")
+    public void restoredMissingBlockUsesStoneUnderItsOriginalKey() throws Exception {
+        Field cache = LegacyModelInputs.class.getDeclaredField("MODELS");
+        cache.setAccessible(true);
+        ModelCaptureCache<ModelSnapshot> models = (ModelCaptureCache<ModelSnapshot>) cache.get(null);
+        ModelSnapshot stone = new ModelSnapshot(new float[0], false, false, false, 0, 0xffffff);
+        models.clear();
+        try {
+            models.capture("minecraft:stone:0", () -> stone, () -> stone, (key, error) -> fail());
+            LegacyModelInputs.captureCached("VillageNames:glazedTerracotta", 7);
+            assertSame(stone, LegacyModelInputs.get("VillageNames:glazedTerracotta", 7));
+        } finally {
+            models.clear();
+        }
+    }
+
     @SuppressWarnings("unchecked")
     private void verifyModel(boolean fluid) throws Exception {
         String configured = System.getProperty("roxy.voxyJar");

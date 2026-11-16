@@ -12,6 +12,7 @@ public final class ModernEngineProbe {
     private ModernEngineProbe() {}
 
     public static String run(Path gameDirectory) throws Exception {
+        RenderBackendGuard.requireOpenGl();
         Path jar = VoxyJarLocator.find(gameDirectory);
         try (ExternalVoxyLoader loader = new ExternalVoxyLoader(jar, gameDirectory.resolve("roxy/runtime-libs"))) {
             String gpu = (String) loader.loadClass("net.rasanovum.roxy.legacy.modern.GpuProbe")
@@ -22,6 +23,7 @@ public final class ModernEngineProbe {
     }
 
     public static String models(Path gameDirectory) throws Exception {
+        RenderBackendGuard.requireOpenGl();
         Block[] blocks = { Blocks.stone, Blocks.oak_stairs, Blocks.log, Blocks.leaves, Blocks.water, Blocks.grass,
             Blocks.snow_layer, Blocks.ice };
         String[] names = new String[blocks.length];
@@ -42,6 +44,7 @@ public final class ModernEngineProbe {
     }
 
     public static String renderer(Path gameDirectory) throws Exception {
+        RenderBackendGuard.requireOpenGl();
         try (ExternalVoxyLoader loader = new ExternalVoxyLoader(
             VoxyJarLocator.find(gameDirectory),
             gameDirectory.resolve("roxy/runtime-libs"))) {

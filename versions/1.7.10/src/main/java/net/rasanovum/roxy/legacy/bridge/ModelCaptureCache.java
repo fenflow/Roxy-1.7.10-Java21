@@ -11,6 +11,10 @@ public final class ModelCaptureCache<T> {
     private final Map<String, T> models = new ConcurrentHashMap<String, T>();
     private int fallbacks;
 
+    void remember(String key, T model) {
+        models.put(key, model);
+    }
+
     public T get(String key) {
         return models.get(key);
     }

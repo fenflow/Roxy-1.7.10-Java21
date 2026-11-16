@@ -51,15 +51,25 @@ public final class SupportReport {
                 .append('=')
                 .append(System.getProperty(key))
                 .append('\n');
-        out.append("gpu.vendor=")
-            .append(GL11.glGetString(GL11.GL_VENDOR))
-            .append('\n');
-        out.append("gpu.renderer=")
-            .append(GL11.glGetString(GL11.GL_RENDERER))
-            .append('\n');
-        out.append("opengl.version=")
-            .append(GL11.glGetString(GL11.GL_VERSION))
-            .append('\n');
+        boolean openGl = true;
+        try {
+            RenderBackendGuard.requireOpenGl();
+        } catch (Exception | LinkageError unavailable) {
+            openGl = false;
+        }
+        if (openGl) {
+            out.append("gpu.vendor=")
+                .append(GL11.glGetString(GL11.GL_VENDOR))
+                .append('\n');
+            out.append("gpu.renderer=")
+                .append(GL11.glGetString(GL11.GL_RENDERER))
+                .append('\n');
+            out.append("opengl.version=")
+                .append(GL11.glGetString(GL11.GL_VERSION))
+                .append('\n');
+        } else {
+            out.append("gpu.vendor=unavailable\ngpu.renderer=unavailable\nopengl.version=unsupported-backend\n");
+        }
         out.append("cpu.logicalProcessors=")
             .append(
                 Runtime.getRuntime()

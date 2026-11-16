@@ -172,6 +172,7 @@ public final class ModernTerrain implements IResourceManagerReloadListener {
 
     private void start() throws Exception {
         if (mc.theWorld == null) return;
+        net.rasanovum.roxy.legacy.loader.RenderBackendGuard.requireOpenGl();
         if (observedWorld != null && observedWorld != mc.theWorld) stop(false);
         observedWorld = mc.theWorld;
         shaderPipeline = ShaderHooks.activePipeline();
@@ -193,10 +194,7 @@ public final class ModernTerrain implements IResourceManagerReloadListener {
         for (String entry : (String[]) type.getMethod("requiredModels")
             .invoke(runtime)) {
             String[] parts = entry.split("\t");
-            Block block = (Block) Block.blockRegistry.getObject(parts[0]);
-            if (block == null || block == Blocks.air)
-                throw new IllegalStateException("Cached model is missing from this modpack: " + parts[0]);
-            LegacyModelInputs.capture(block, Integer.parseInt(parts[1]));
+            LegacyModelInputs.captureCached(parts[0], Integer.parseInt(parts[1]));
         }
         ingest = type.getMethod("ingest", int.class, int.class, int.class, long[].class);
         ingestCapacity = type.getMethod("ingestCapacity");

@@ -1,5 +1,129 @@
 # GTNH terrain validation
 
+## 0.4.3 release packaging — 2026-11-16
+
+The fixes below were live-tested under a local 0.4.2 version label. Because 0.4.2
+was already published, the release is 0.4.3. ZIP-entry and disassembly comparisons
+confirm only version metadata changed; rendering/bridge code is identical.
+The 0.4.3 build and 52 tests on each of Java 21 and 25 passed without test skips.
+Binary and sources audits found no bundled Voxy code, assets or nested JARs.
+
+Release binary SHA-256:
+`b196a416c57b77f317c6d0013a05547bae80adfe365cf1ce0999235978838912`.
+
+
+## Issue #2 SDL-GPU startup guard — 2026-11-16
+
+- The attached issue log identifies Angelica's active backend as `SDL GPU (vulkan)`.
+  It does not include a native crash stack. Code inspection confirms world startup
+  entered `TerrainRuntime.start` and `GlStateScope`, whose field initializers issue
+  native OpenGL queries without checking the host backend.
+- Added a Java-only check of Angelica's `RENDER_BACKEND.isSDLGPU()` before terrain
+  startup and all three GPU/model diagnostics. Unsupported backends fail through
+  the existing recoverable renderer-disable path with an OpenGL/restart message.
+  Support reports omit GL hardware queries when the backend check fails.
+- Seven regressions simulate SDL-GPU without an OpenGL context, allow OpenGL and
+  older hosts without BackendManager, reject null/broken/unknown backend APIs,
+  and inspect compiled entry points to enforce checking before other method calls.
+  This is an isolated backend-contract reproduction, not a reproduction of the
+  reporter's full modpack or native access violation. This change does not
+  implement Vulkan rendering. Live follow-up results are recorded below.
+- All 49 tests passed on Java 21 and 25 with zero failures or skips. Full build,
+  Spotless, Checkstyle and `verifyNoBundledVoxy` passed. Tests supplied the pinned
+  external Voxy JAR and local Angelica fixture; the Voxy SHA-256 still matches the
+  documented original binary. Existing local model-restoration changes were retained.
+
+### Live follow-up — 2026-11-16
+
+- Tested the installed production `roxy-0.4.2-gtnh-alpha.jar` with the separate
+  original Voxy JAR, Java 25.0.5 and the disposable GTNH fixture. No development
+  bridge override was used. Binary SHA-256:
+  `87a2a05d9ccfb6578d3b9923528f6aa0fb01ca2624ded412b2bfb99bc5826f88`.
+- **Vulkan guard passed:** the log confirmed `SDL GPU (vulkan)`. Entered the
+  existing world, inspected the in-game message requiring OpenGL and a restart,
+  ran `/roxy report` successfully, and saved/exited to the menu normally. The
+  report contained `renderer.state=failed`, zero captured sections, and
+  `opengl.version=unsupported-backend`; native GL hardware queries were omitted.
+  This confirms graceful rejection, not Vulkan LOD rendering or host terrain
+  correctness. The visible world view had no terrain during this check.
+- The environment used Mesa Dozen 26.3.0-devel Vulkan over Direct3D12. An initial
+  launch crashed inside `vulkan_dzn.dll` in BetterLoadingScreen's font draw before
+  world entry. Temporarily disabling that optional mod allowed the guard test;
+  the mod was restored afterward. This unrelated splash crash is not fixed by Roxy.
+- **Initial OpenGL failure (subsequently fixed below):** an attempted NVIDIA Vulkan selection was
+  unavailable and Angelica fell back to its OpenGL backend, confirmed in logs.
+  OpenGL 4.6 Mesa 26.1.2 loaded the world and logged successful original Voxy
+  initialization, but the first scene stalled in `GL11C.nglDrawElements` through
+  Voxy's `FullscreenBlit` / depth composition. Two thread dumps showed the same
+  native call and unchanged client-thread CPU time. The unresponsive disposable
+  client was stopped. An OpenGL-only retry requesting llvmpipe instead crashed
+  in graphics initialization before world load.
+
+### OpenGL stall investigation — 2026-11-16
+
+- Earlier successful backport logs used native NVIDIA OpenGL 4.6.0 / driver
+  616.92. The current environment reports Microsoft / D3D12 (RTX 3060), OpenGL
+  4.6 Mesa 26.1.2. Running the old packaged 0.4.1 in the current environment
+  reproduced the same stall, excluding the new backend guard as its cause.
+- Temporary GPU synchronization localized the stalled workload to Voxy's terrain
+  `glMultiDrawElementsIndirectCountARB` submission. The final fullscreen blit in
+  the unsynchronized thread dump was waiting for that earlier workload. An
+  isolated original depth-composition shader probe completed without GL errors.
+- Reading back the count and using ordinary multi-draw avoided the stall but
+  lost most terrain. Submitting the same generated commands individually restored
+  mountains, forest, snow, water and distant terrain. Both SSAO modes were checked
+  during diagnosis; changing SSAO did not fix the missing geometry and AUTO was
+  retained. Temporary tracing and framebuffer diagnostics were removed.
+- The compatibility adapter activates only for Mesa's D3D12 renderer. It preserves
+  count limits, command offsets/stride, index type/offset, instance count, base
+  vertex and base instance. Other drivers retain the original Voxy submission.
+  The external JAR is unchanged; neither transformed classes nor Voxy assets are
+  packaged. Readback and individual draws have a performance cost.
+- A resource reload after travel exposed a separate model-capture lifecycle bug:
+  failed callbacks left saved translations on GTNHLib's capture stack. Its
+  `cleanup()` clears capture mode without restoring those translations. Repeated
+  failures exhausted the stack and eventually crashed sky rendering with
+  `Already tesselating!`. Capture now discards incomplete primitives and stops
+  capture before cleanup. Regressions cover 40 consecutive failed callbacks and
+  normal completion without a double stop.
+- All 52 tests passed on Java 21 and Java 25 with zero skips/failures. Full build,
+  formatting, Checkstyle and the no-bundled-Voxy audit passed. The added regression
+  verifies both opaque/translucent call sites in the pinned external JAR and
+  checks the transformed bytecode's operand stacks.
+- Final packaged binary SHA-256:
+  `b30cfc596fcef3ff994fab6307fda7b6b2a194561f910f4dbcc28cdd9bc20db9`.
+- Live production runs used that installed binary without a development bridge or
+  GPU-tracing override. World loading restored the snow-forest village and distant
+  terrain. `/roxy reload` completed and returned to rendering at the location that
+  previously triggered the capture-stack crash. A subsequent client restart,
+  world load, save-to-title and normal client exit also completed.
+- Shader testing exposed the same indirect-draw issue in Angelica's own chunk
+  renderer (`GpuIndirectMultiDrawEmitter`), outside the Voxy adapter. The test
+  fixture now uses Angelica's existing `INDIVIDUAL` multi-draw setting. Native
+  NVIDIA testing from October used a different driver and is not a current retest.
+- Photon 1.4 could not link on this Mesa driver: `deferred4_a` requested 36,860
+  bytes of compute shared memory against the driver's 32,768-byte limit. Angelica
+  disabled shaders, and normal Roxy terrain rendering resumed without a crash.
+  This is not a successful Photon rendering test on Mesa/D3D12.
+- Complementary Reimagined r5.9.3 loaded and visibly rendered the village with
+  the original `IrisVoxyRenderPipeline`. Switching shaders off rebuilt the
+  `NormalRenderPipeline` and restored ordinary terrain. Travel back to the
+  mountain/lake view completed; the final report showed `renderer.state=running`,
+  9,366 captured sections, zero pending chunks and eight isolated model fallbacks.
+  Saved/unloaded the world and exited the client normally again.
+- Observed roughly 1 FPS with Complementary in the village, 2–3 FPS there without
+  shaders, and 6–7 FPS at the mountain/lake view. These Mesa/D3D12 smoke-test
+  observations are not a benchmark or performance parity with native NVIDIA.
+  Existing finite-cache boundaries and imperfect special-model appearances remain;
+  restoring rendering does not establish pixel-perfect output for every block.
+- Retested the final binary under logged `SDL GPU (vulkan)`: world entry displayed
+  the OpenGL requirement and restart instructions, `/roxy report` completed with
+  zero captured sections and `opengl.version=unsupported-backend`, and save-to-title
+  and normal client exit succeeded. The optional BetterLoadingScreen mod was
+  temporarily disabled to avoid its separate native splash crash, then restored.
+  Host Vulkan terrain remained absent; only Roxy's graceful rejection is validated.
+- Evidence logs and screenshots are retained locally and are not published.
+
 ## 0.4.0 capture, model isolation and shader bridge — 2026-10-30
 
 - All 40 tests passed on Java 21.0.13 and Java 25.0.5, with the pinned original

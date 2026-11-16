@@ -15,7 +15,7 @@ See [validation](VALIDATION.md) for evidence and remaining coverage gaps.
 
 1. Use the **Java 17–26 edition of GTNH 2.9.0-beta-3**, running **Java 21 or newer**,
    with **Angelica 2.2.10** and the pack's LWJGL3ify installation.
-2. Remove older Roxy JARs and put `roxy-0.4.1-gtnh-alpha.jar` in `.minecraft/mods`.
+2. Remove older Roxy JARs and put `roxy-0.4.3-gtnh-alpha.jar` in `.minecraft/mods`.
 3. Obtain the original [Voxy 0.2.16-beta for Minecraft 1.21.11](https://modrinth.com/mod/voxy/version/H3w2nVdU)
    separately and put it in the same `mods` folder. Keep its original filename.
 4. Launch the game, enter a world, and explore. Voxy
@@ -24,7 +24,7 @@ See [validation](VALIDATION.md) for evidence and remaining coverage gaps.
 
 ```text
 .minecraft/mods/
-  roxy-0.4.1-gtnh-alpha.jar
+  roxy-0.4.3-gtnh-alpha.jar
   voxy-0.2.16-beta+1.21.11.jar
 ```
 
@@ -37,6 +37,23 @@ required. Only Modrinth version `H3w2nVdU` is accepted; its SHA-256 is:
 Use a GPU/driver supporting Voxy's modern compute and direct-state-access OpenGL
 requirements. Live tests used an NVIDIA RTX 3060 with OpenGL 4.6 on Windows 11.
 Other GPU vendors and operating systems have not been validated here.
+
+Mesa's OpenGL-over-D3D12 renderer uses a compatibility submission path: Roxy reads
+Voxy's GPU-generated draw commands and submits them individually, preserving their
+indices, instance counts and base vertices/instances. This avoids the tested
+multi-draw stall and missing terrain. Readback and individual submissions cost
+performance; native OpenGL drivers keep Voxy's original GPU-driven multi-draw path.
+On this Mesa/D3D12 driver, Angelica's own indirect chunk draws can also stall when
+enabling shaders. Set Angelica's advanced multi-draw mode to `INDIVIDUAL` for this
+environment (`advanced.multi_draw_mode` in `config/angelica-options.json`). This
+host setting is separate from Roxy's automatic Voxy compatibility path.
+
+Angelica must use its **OpenGL backend**. Its SDL-GPU backends (including Vulkan)
+cannot run Voxy's native OpenGL renderer. Roxy checks the selected backend before
+starting terrain rendering or GPU probes and reports an unsupported-backend error
+instead of entering native OpenGL. Minecraft can continue with Roxy LODs disabled;
+select Angelica's OpenGL backend and restart Minecraft to use Roxy. `/roxy report`
+remains available and omits OpenGL hardware queries on unsupported backends.
 
 ## What runs in game
 

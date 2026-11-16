@@ -74,6 +74,19 @@ public final class LegacyModelInputs {
             });
     }
 
+    /** Keep the persisted key even if the current registry removed or aliased its block. */
+    public static void captureCached(String name, int metadata) throws Exception {
+        Block block = (Block) Block.blockRegistry.getObject(name);
+        ModelSnapshot snapshot;
+        if (block == null || block == Blocks.air) {
+            snapshot = MODELS.get("minecraft:stone:0");
+            if (snapshot == null) snapshot = capture(Blocks.stone, 0);
+            org.apache.logging.log4j.LogManager.getLogger("Roxy")
+                .warn("Cached block {}:{} is unavailable; using stone for its saved terrain", name, metadata);
+        } else snapshot = capture(block, metadata);
+        MODELS.remember(name + ":" + metadata, snapshot);
+    }
+
     private static ModelSnapshot captureModel(final Block block, final int metadata) throws Exception {
         Class<?> manager = Class.forName("com.gtnewhorizon.gtnhlib.client.renderer.TessellatorManager");
         if ((Boolean) manager.getMethod("isCurrentlyCapturing")
@@ -195,16 +208,14 @@ public final class LegacyModelInputs {
 
     private static float[] geometry(Class<?> manager, IBlockAccess access, Block block, int colour, boolean allFaces)
         throws Exception {
-        try {
-            Tessellator tess = (Tessellator) manager.getMethod("startCapturingAndGet")
-                .invoke(null);
+        try (ModelCaptureSession capture = new ModelCaptureSession(manager)) {
+            Tessellator tess = capture.tessellator;
             tess.startDrawingQuads();
             tess.setTranslation(0, -64, 0);
             RenderBlocks renderer = new RenderBlocks(access);
             renderer.renderAllFaces = allFaces;
             renderer.renderBlockByRenderType(block, 0, 64, 0);
-            List<?> quads = (List<?>) manager.getMethod("stopCapturingToPooledQuads")
-                .invoke(null);
+            List<?> quads = capture.finish();
             Class<?> view = Class.forName("com.gtnewhorizon.gtnhlib.client.renderer.cel.model.quad.ModelQuadView");
             Method[] values = { view.getMethod("getX", int.class), view.getMethod("getY", int.class),
                 view.getMethod("getZ", int.class), view.getMethod("getTexU", int.class),
@@ -231,9 +242,6 @@ public final class LegacyModelInputs {
                 }
             }
             return vertices;
-        } finally {
-            manager.getMethod("cleanup")
-                .invoke(null);
         }
     }
 }
